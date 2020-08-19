@@ -26,8 +26,9 @@ func ZeroUnPadding(origData []byte) []byte {
 		})
 }
 
-func DesEncrypt(text string, key []byte) (string, error) {
+func DesEncrypt(text string, k string) (string, error) {
 	src := []byte(text)
+	key := []byte(k)
 	block, err := des.NewCipher(key)
 	if err != nil {
 		return "", err
@@ -35,7 +36,7 @@ func DesEncrypt(text string, key []byte) (string, error) {
 	bs := block.BlockSize()
 	src = ZeroPadding(src, bs)
 	if len(src)%bs != 0 {
-		return "", errors.New("Need a multiple of the blocksize")
+		return "", errors.New("need a multiple of the blockSize")
 	}
 	out := make([]byte, len(src))
 	dst := out
@@ -48,7 +49,9 @@ func DesEncrypt(text string, key []byte) (string, error) {
 }
 
 
-func DesDecrypt(decrypted string , key []byte) (string, error) {
+func DesDecrypt(decrypted string , k string) (string, error) {
+	key := []byte(k)
+
 	src, err := hex.DecodeString(decrypted)
 	if err != nil {
 		return "", err
