@@ -13,13 +13,17 @@ import (
 	"encoding/base64"
 )
 
-func AesEncrypt(orig string, key string) string {
+func AesEncrypt(orig string, key string) (string, error) {
+
 	// 转成字节数组
 	origData := []byte(orig)
 	k := []byte(key)
 
 	// 分组秘钥
-	block, _ := aes.NewCipher(k)
+	block, err := aes.NewCipher(k)
+	if err != nil{
+		return "", err
+	}
 	// 获取秘钥块的长度
 	blockSize := block.BlockSize()
 	// 补全码
@@ -31,7 +35,7 @@ func AesEncrypt(orig string, key string) string {
 	// 加密
 	blockMode.CryptBlocks(cryted, origData)
 
-	return base64.StdEncoding.EncodeToString(cryted)
+	return base64.StdEncoding.EncodeToString(cryted), nil
 
 }
 

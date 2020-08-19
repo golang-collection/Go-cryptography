@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"crypto/aes"
 	"testing"
 )
 
@@ -16,15 +17,17 @@ func TestAesEncrypt(t *testing.T) {
 		orig string
 		key string
 		result string
+		err error
 	}{
-		{"hello world", "123456781234567812345678", "cOYnULidg5pVZlS3bxTLpQ=="},
-		{"hello world", "123456781234567812345678", "cOYnULidg5pVZlS3bxTLpQ=="},
-		{"hello world", "123456781234567812345678", "cOYnULidg5pVZlS3bxTLpQ=="},
+		{"hello world", "123456781234567812345678", "cOYnULidg5pVZlS3bxTLpQ==", nil},
+		{"", "1", "", aes.KeySizeError(1)},
+		{"", "", "", aes.KeySizeError(0)},
+		{"hello", "", "", aes.KeySizeError(0)},
 	}
 	for _, tt := range aesTests{
-		s := AesEncrypt(tt.orig, tt.key)
-		if s != tt.result{
-			t.Errorf("orig: %s, key: %s, expect: %s, actual: %s", tt.orig, tt.key, tt.result, s)
+		s, err := AesEncrypt(tt.orig, tt.key)
+		if s != tt.result || err != tt.err{
+			t.Errorf("orig: %s, key: %s, expect: %s, actual: %s, err: %v", tt.orig, tt.key, tt.result, s, err)
 		}
 	}
 }
@@ -35,8 +38,6 @@ func TestAesDecrypt(t *testing.T) {
 		key string
 		result string
 	}{
-		{"hello world", "123456781234567812345678", "cOYnULidg5pVZlS3bxTLpQ=="},
-		{"hello world", "123456781234567812345678", "cOYnULidg5pVZlS3bxTLpQ=="},
 		{"hello world", "123456781234567812345678", "cOYnULidg5pVZlS3bxTLpQ=="},
 	}
 	for _, tt := range aesTests{
@@ -50,6 +51,6 @@ func TestAesDecrypt(t *testing.T) {
 
 func BenchmarkAesEncrypt(b *testing.B) {
 	for i := 0; i<b.N; i++{
-		_ = AesEncrypt("hello world", "123456781234567812345678")
+		_, _ = AesEncrypt("hello world", "123456781234567812345678")
 	}
 }
